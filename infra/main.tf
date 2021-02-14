@@ -1,6 +1,5 @@
 locals {
-  bucket-domain   = replace(var.domain, ".", "_")
-  bucket-name     = "${var.environment}_cdn_${local.bucket-domain}"
+  bucket-name     = "${var.environment}.cdn.${var.domain}"
   fallback-domain = var.environment == "prod" ? "" : "prod.cdn.${var.domain}"
 }
 
