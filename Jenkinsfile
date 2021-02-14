@@ -21,7 +21,8 @@ pipeline {
     stages {
         stage ('Initialize') {
             steps {
-            echo 'Placeholder.'
+                echo 'Placeholder.'
+            }
         }
     }
 }
