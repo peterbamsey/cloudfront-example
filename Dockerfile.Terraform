@@ -1,0 +1,6 @@
+FROM hashicorp/terraform:light
+MAINTAINER "Peter Bamsey <peter.bamsey@gmail.com>"
+
+RUN apk add --no-cache --update make python3
+
+ENTRYPOINT ["terraform"]

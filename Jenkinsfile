@@ -21,16 +21,16 @@ pipeline {
     stages {
         stage('Plan') {
             agent {
-                docker {
-                    image 'hashicorp/terraform:light'
+                dockerfile {
+                    filename 'Dockerfile.Terraform'
                     args  '--entrypoint=\'\''
                 }
             }
             steps {
                 dir('infra') {
-                    sh 'terraform init -no-color -input=false'
-                    sh "terraform plan -no-color -input=false -out tfplan -var \"environment=${params.environment}\" -var \"region=${params.region}\" -var \"domain=${params.domain}\""
-                    sh 'terraform show -no-color tfplan > tfplan.txt'
+                    sh 'terraform init -input=false'
+                    sh "terraform plan -input=false -out tfplan -var \"environment=${params.environment}\" -var \"region=${params.region}\" -var \"domain=${params.domain}\""
+                    sh 'terraform show tfplan > tfplan.txt'
                 }
             }
         }

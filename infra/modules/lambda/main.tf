@@ -31,7 +31,7 @@ resource "null_resource" "pip" {
   }
 
   provisioner "local-exec" {
-    command = "cd ${path.module}; make build}"
+    command = "cd ${path.module}; make build"
   }
 }
 
