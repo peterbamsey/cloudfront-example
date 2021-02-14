@@ -1,13 +1,13 @@
 pipeline {
-    agent any
+    agent none
 
     options {
         timeout(time: 1, unit: 'HOURS')
     }
 
     parameters {
-        string(name: 'environment', defaultValue: 'default', description: 'The environment to deploy to - e.g prod or beta')
-        string(name: 'region', defaultValue: '', description: 'The AWS region which the resources are deployed in')
+        choice(name: 'environment', choices: ['beta', 'prod'], description: 'The environment the resources will be deployed to e.g prod or beta')
+        string(name: 'region', defaultValue: 'us-east-1', description: 'The AWS region which the resources are deployed in')
         string(name: 'domain', defaultValue: 'bamsey.net', description: 'The root domain of the e.g bamsey.net')
         booleanParam(name: 'autoApprove', defaultValue: false, description: 'Automatically run apply after generating plan?')
     }
@@ -19,9 +19,41 @@ pipeline {
     }
 
     stages {
-        stage ('Initialize') {
+        stage('Plan') {
+            agent {
+                docker {
+                    image 'hashicorp/terraform:light'
+                    args  '--entrypoint=\'\''
+                }
+            }
             steps {
-                echo 'Placeholder.'
+                dir('infra') {
+                    sh 'terraform init -no-color -input=false'
+                    sh "terraform plan -no-color -input=false -out tfplan -var \"environment=${params.environment}\" -var \"region=${params.region}\" -var \"domain=${params.domain}\""
+                    sh 'terraform show -no-color tfplan > tfplan.txt'
+                }
+            }
+        }
+        stage('Approval') {
+            agent {
+                docker {
+                    image 'hashicorp/terraform:light'
+                    args  '--entrypoint=\'\''
+                }
+            }
+            when {
+                not {
+                    equals expected: true, actual: params.autoApprove
+                }
+            }
+            steps {
+                dir('infra') {
+                    script {
+                        def plan = readFile 'tfplan.txt'
+                        input message: "Do you want to apply the plan?",
+                            parameters: [text(name: 'Plan', description: 'Please review the plan', defaultValue: plan)]
+                    }
+                }
             }
         }
     }

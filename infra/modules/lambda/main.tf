@@ -17,13 +17,15 @@ resource "aws_lambda_function" "lambda" {
   timeout          = local.lambda-timeout
 
   environment {
-    ENVIRONMENT     = var.environment
-    FALLBACK-DOMAIN = var.fallback-domain
+    variables = {
+      ENV-TYPE        = var.environment
+      FALLBACK-DOMAIN = var.fallback-domain
+    }
   }
 }
 
 resource "null_resource" "pip" {
-  triggers {
+  triggers = {
     source        = local.lambda-source-hash
     reqruirements = local.lambda-requirements-hash
   }
