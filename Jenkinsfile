@@ -56,5 +56,18 @@ pipeline {
                 }
             }
         }
+        stage('Apply') {
+            agent {
+                docker {
+                    image 'hashicorp/terraform:light'
+                    args  '--entrypoint=\'\''
+                }
+            }
+            steps {
+                dir('infra') {
+                    sh "terraform apply -input=false tfplan"
+                }
+            }
+        }
     }
 }
