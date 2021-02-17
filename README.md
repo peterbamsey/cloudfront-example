@@ -29,7 +29,7 @@ It will additionally check the environment prefix of the Lambda function name an
 Therefore if we request a file from the `beta` CDN that does not exist the user will automatically be redirected to the `prod` CDN.
 <br>
 We can see this in action with curl.  At the `beta` CDN origin we have a single file at the route of the S3 bucket, `index.html`, containing the content `ok`:<br>  
-```python
+```
 $ curl -vL https://beta.cdn.bamsey.net/index.html
 *   Trying 99.84.8.114...
 * TCP_NODELAY set
