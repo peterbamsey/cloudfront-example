@@ -2,7 +2,8 @@ locals {
   function-name = "${var.environment}-${var.function-name}"
 
   lambda-runtime           = "python3.8"
-  lambda-timeout           = 30
+  lambda-timeout           = 5
+  lambda-always-build      = uuid()
   lambda-source-hash       = filebase64sha256("${path.module}/source/${var.function-name}/${var.function-name}.py")
   lambda-requirements-hash = filebase64sha256("${path.module}/source/${var.function-name}/${var.function-name}.py")
 }
@@ -11,25 +12,22 @@ resource "aws_lambda_function" "lambda" {
   filename         = data.archive_file.zip-file.output_path
   function_name    = local.function-name
   handler          = "${var.function-name}.lambda_handler"
+  publish          = true
   role             = aws_iam_role.role.arn
   runtime          = local.lambda-runtime
   source_code_hash = data.archive_file.zip-file.output_base64sha256
   timeout          = local.lambda-timeout
-
-  environment {
-    ENVIRONMENT     = var.environment
-    FALLBACK-DOMAIN = var.fallback-domain
-  }
 }
 
 resource "null_resource" "pip" {
-  triggers {
+  triggers = {
+    always        = local.lambda-always-build
     source        = local.lambda-source-hash
     reqruirements = local.lambda-requirements-hash
   }
 
   provisioner "local-exec" {
-    command = "cd ${path.module}; make build}"
+    command = "cd ${path.module}; make build"
   }
 }
 
@@ -51,11 +49,14 @@ resource "aws_iam_role" "role" {
       {
         Action = "sts:AssumeRole"
         Effect = "Allow"
-        Sid    = "LamdaAssumeRole"
+        Sid    = "CloudfrontExampleAssumeRole"
         Principal = {
-          Service = "lambda.amazonaws.com"
+          Service = [
+            "lambda.amazonaws.com",
+            "edgelambda.amazonaws.com"
+          ]
         }
-      },
+      }
     ]
   })
 }
@@ -68,20 +69,13 @@ resource "aws_iam_role_policy" "policy" {
     Statement = [
       {
         Action = [
-          "ec2:Describe*",
-        ]
-        Effect   = "Allow"
-        Resource = "*"
-      },
-      {
-        Action = [
           "logs:CreateLogGroup",
           "logs:CreateLogStream",
           "logs:PutLogEvents"
         ],
         Effect   = "Allow",
         Resource = "arn:aws:logs:${var.region}:${var.account-id}:*"
-      },
+      }
     ]
   })
 }

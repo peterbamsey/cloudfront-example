@@ -4,11 +4,11 @@ variable "domain" {
 }
 
 variable "environment" {
-  description = "The environment the resources will be deployed to e.g prod or beta"
+  description = "The environment that the resources live in e.g prod or beta"
   type        = string
 }
 
-variable "region" {
-  description = "The AWS region which the resources are deployed in"
+variable "sub-domain" {
+  description = "The left part of the DNS name"
   type        = string
 }
