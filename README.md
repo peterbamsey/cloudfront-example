@@ -13,7 +13,7 @@ The user requests a file from `beta.cdn.bamsey.net` - index.html.  In this insta
 As an example of manipulating the headers in action, our Lambda function will inspect the origin-response headers looking for headers HTTP 400 range:
 
 ```python
-    if (400 <= int(response['status']) <= 499) and context.function_name.startswith("beta-"):
+    if 400 <= int(response['status']) <= 499 and host.startswith("beta"):
         response['status'] = 302
         response['statusDescription'] = 'Found'
 
