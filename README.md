@@ -82,8 +82,7 @@ $ curl -Lv https://beta.cdn.bamsey.net/prod-index.html
 prod ok
 ```
 
-##Setup
-
+## Setup
 This example project contains all the Terraform IaC to deploy the setup described above, including:
 * Cloudfront CDN
 * S3 bucket along with the index and prod-index.html files
@@ -100,8 +99,7 @@ To run Jenkins locally you can follow the configuration steps here:  https://www
 <br>  
 Once Jenkins is setup and available you will need to add AWS Access key secrets to the Jenkins secrets store to match the environment variable names found in the Jenkinsfile. Initial configuration of the S3 state bucket needs to be handled manually.
 
-###Versions
-
+### Versions
 Tested with:
 * Terraform v0.14.6 and AWS provider v3.28.0
 * Jenkins 2.263.4
